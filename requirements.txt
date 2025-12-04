@@ -1,0 +1,12 @@
+ax
+numpy
+opencv-python
+diffusers
+transformers
+accelerate
+safetensors
+pillow
+torch
+torchvision
+flask==3.0.0
+flask-cors==4.0.0

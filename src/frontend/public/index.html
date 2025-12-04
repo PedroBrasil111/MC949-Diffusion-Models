@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferramenta de Visão Computacional</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Ferramenta de Visão Computacional</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="outpainting">Outpainting</button>
+            <button class="tab" data-tab="inpainting">Inpainting</button>
+            <!-- <button class="tab" data-tab="superresolution">Super-Resolution</button> -->
+        </div>
+
+        <!-- Grid -->
+        <div class="grid">
+            <!-- Coluna 1: Upload e Parâmetros -->
+            <div>
+                <!-- Upload -->
+                <div class="card">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload de Imagem
+                    </h3>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                    <button class="btn btn-primary" id="uploadBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Selecionar Imagem
+                    </button>
+                </div>
+
+                <!-- Parâmetros -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m5.2-14.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m14.2 5.2l-4.2-4.2m0-6l-4.2-4.2"></path>
+                        </svg>
+                        Parâmetros
+                    </h3>
+
+                    <!-- Parâmetros Outpainting -->
+                    <div id="outpainting-params">
+                        <div class="form-group">
+                            <label class="form-label">Direção</label>
+                            <select id="direction" class="form-select">
+                                <option value="all">Todas as direções</option>
+                                <option value="left">Esquerda</option>
+                                <option value="right">Direita</option>
+                                <option value="top">Cima</option>
+                                <option value="bottom">Baixo</option>
+                                <option value="horizontal">Horizontal (Esquerda + Direita)</option>
+                                <option value="vertical">Vertical (Cima + Baixo)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Porcentagem: <span id="percentage-value">15%</span></label>
+                            <input type="range" id="percentage" class="form-range" min="0" max="30" step="1" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dimensão calculada: <span id="dimension-info">-</span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prompt</label>
+                            <textarea id="outpaint-prompt" class="form-textarea" placeholder="Descreva o que deseja gerar..."></textarea>
+                        </div>
+                        <div class="form-group hidden">
+                            <label class="form-label">Prompt negativa</label>
+                            <textarea id="outpaint-negative-prompt" class="form-textarea" placeholder="Descreva o que o modelo deve evitar..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Strength: <span id="outpaint-strength-value">0.8</span></label>
+                            <input type="range" id="outpaint-strength" class="form-range" min="0.1" max="1" step="0.1" value="0.8">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Guidance Scale: <span id="outpaint-guidance-value">12</span></label>
+                            <input type="range" id="outpaint-guidance" class="form-range" min="1" max="25" step="0.5" value="12">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Inference Steps: <span id="outpaint-steps-value">25</span></label>
+                            <input type="range" id="outpaint-steps" class="form-range" min="20" max="100" step="5" value="25">
+                        </div>
+                    </div>
+
+                    <!-- Parâmetros Inpainting -->
+                    <div id="inpainting-params" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">Prompt</label>
+                            <textarea id="inpaint-prompt" class="form-textarea" placeholder="Descreva o que deseja gerar na área mascarada..."></textarea>
+                        </div>
+                        <div class="form-group hidden">
+                            <label class="form-label">Prompt negativa</label>
+                            <textarea id="inpaint-negative-prompt" class="form-textarea" placeholder="Descreva o que o modelo deve evitar..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Strength: <span id="inpaint-strength-value">0.8</span></label>
+                            <input type="range" id="inpaint-strength" class="form-range" min="0.1" max="1" step="0.1" value="0.8">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Guidance Scale: <span id="inpaint-guidance-value">12</span></label>
+                            <input type="range" id="inpaint-guidance" class="form-range" min="1" max="25" step="0.5" value="12">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Inference Steps: <span id="inpaint-steps-value">25</span></label>
+                            <input type="range" id="inpaint-steps" class="form-range" min="20" max="100" step="5" value="25">
+                        </div>
+                    </div>
+
+                    <!-- Parâmetros Super-Resolution -->
+                    <div id="superres-params" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">Escala</label>
+                            <select id="scale" class="form-select">
+                                <option value="2">2x</option>
+                                <option value="4">4x</option>
+                                <option value="8">8x</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Modelo</label>
+                            <select id="model" class="form-select">
+                                <option value="esrgan">ESRGAN</option>
+                                <option value="realesrgan">Real-ESRGAN</option>
+                                <option value="swinir">SwinIR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Denoise Strength: <span id="denoise-value">0.5</span></label>
+                            <input type="range" id="denoise" class="form-range" min="0" max="1" step="0.1" value="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Processar -->
+                <button class="btn btn-gradient" id="processBtn" style="margin-top: 1.5rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                    Processar Imagem
+                </button>
+            </div>
+
+            <!-- Coluna 2: Imagem Original -->
+            <div class="card">
+                <h3>Imagem Original</h3>
+                <div class="image-display" id="originalImageContainer">
+                    <div class="placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <p>Nenhuma imagem carregada</p>
+                    </div>
+                    <canvas id="maskCanvas" style="display: none; cursor: crosshair;"></canvas>
+                    <img id="originalImage" style="display: none;">
+                    <div class="canvas-tools" id="canvasTools" style="display: none;">
+                        <button class="tool-btn active" id="drawBtn" title="Desenhar máscara">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                                <path d="M2 2l7.586 7.586"></path>
+                                <circle cx="11" cy="11" r="2"></circle>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="eraseBtn" title="Apagar máscara">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 20H7L3 16l9-9 9 9"></path>
+                                <path d="M7 20v-4"></path>
+                            </svg>
+                        </button>
+                        <button class="tool-btn danger" id="clearMaskBtn" title="Limpar máscara">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="mask-hint" id="maskHint" style="display: none;">
+                    Desenhe na imagem para criar a máscara de inpainting
+                </div>
+            </div>
+
+            <!-- Coluna 3: Resultado -->
+            <div class="card">
+                <div class="header-flex">
+                    <h3>Resultado</h3>
+                    <button class="btn btn-success" id="downloadBtn" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download
+                    </button>
+                    <button class="btn btn-secondary" id="setAsInputBtn" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                        </svg>
+                        Usar como Entrada
+                    </button>
+                </div>
+                <div class="image-display">
+                    <div class="placeholder" id="resultPlaceholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                            <circle cx="11" cy="11" r="3"></circle>
+                        </svg>
+                        <p>Resultado aparecerá aqui</p>
+                    </div>
+                    <img id="resultImage" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
